@@ -1,23 +1,16 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { apiService } from '@/services/api';
-import { ProductResponse, SaleRequest, SaleResponse } from '@/types/api';
-import {
-  ShoppingCart,
-  Plus,
-  Package,
-  Calendar,
-  DollarSign,
-  TrendingUp,
-} from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { apiService } from "@/services/api";
+import { ProductResponse, SaleRequest, SaleResponse } from "@/types/api";
+import { ShoppingCart, Plus, Package, DollarSign } from "lucide-react";
 
 const saleSchema = z.object({
-  productId: z.string().min(1, 'Produto é obrigatório'),
-  quantidade: z.number().int().min(1, 'Quantidade deve ser pelo menos 1'),
+  productId: z.string().min(1, "Produto é obrigatório"),
+  quantidade: z.number().int().min(1, "Quantidade deve ser pelo menos 1"),
 });
 
 type SaleFormData = z.infer<typeof saleSchema>;
@@ -27,8 +20,8 @@ const SalesPage: React.FC = () => {
   const [sales, setSales] = useState<SaleResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const {
     register,
@@ -40,9 +33,11 @@ const SalesPage: React.FC = () => {
     resolver: zodResolver(saleSchema),
   });
 
-  const selectedProductId = watch('productId');
-  const selectedProduct = products.find(p => p.id === selectedProductId);
-  const selectedQuantity = watch('quantidade');
+  const selectedProductId = watch("productId");
+  const selectedProduct = products.find(
+    (p) => p.id === Number(selectedProductId)
+  );
+  const selectedQuantity = watch("quantidade");
 
   useEffect(() => {
     loadData();
@@ -51,66 +46,68 @@ const SalesPage: React.FC = () => {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const [productsData] = await Promise.all([
+      const [productsData, salesData] = await Promise.all([
         apiService.getAllProducts(),
-        // Note: A API não tem endpoint para listar vendas, então vamos simular
-        // Em uma implementação real, seria necessário adicionar este endpoint
+        apiService.getAllSales(),
       ]);
-      setProducts(productsData.filter(p => p.status)); // Apenas produtos ativos
-      setSales([]); // Simulando lista vazia por enquanto
+      setProducts(productsData.filter((p) => p.status));
+      setSales(salesData);
     } catch (error) {
-      console.error('Erro ao carregar dados:', error);
-      setError('Erro ao carregar dados');
+      console.error("Erro ao carregar dados:", error);
+      setError("Erro ao carregar dados");
     } finally {
       setIsLoading(false);
     }
   };
-
   const onSubmit = async (data: SaleFormData) => {
     try {
-      setError('');
-      setSuccess('');
-      
+      setError("");
+      setSuccess("");
+
       const saleData: SaleRequest = {
         productId: data.productId,
         quantidade: data.quantidade,
       };
 
       const newSale = await apiService.createSale(saleData);
-      
-      // Atualizar a lista de produtos para refletir o novo estoque
+
       await loadData();
-      
-      // Adicionar a nova venda à lista (simulado)
-      setSales(prev => [newSale, ...prev]);
-      
-      setSuccess('Venda realizada com sucesso!');
+
+      setSales((prev) => [newSale, ...prev]);
+
+      setSuccess("Venda realizada com sucesso!");
       handleCloseModal();
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Erro ao realizar venda');
+      setError(error.response?.data?.message || "Erro ao realizar venda");
     }
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     reset();
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
-  const totalRevenue = sales.reduce((sum, sale) => sum + sale.precoNoMomentoDaVenda * sale.quantidadeVendida, 0);
+  const totalRevenue = sales.reduce(
+    (sum, sale) => sum + sale.precoNoMomentoDaVenda * sale.quantidadeVendida,
+    0
+  );
   const totalSales = sales.length;
-  const totalItemsSold = sales.reduce((sum, sale) => sum + sale.quantidadeVendida, 0);
+  const totalItemsSold = sales.reduce(
+    (sum, sale) => sum + sale.quantidadeVendida,
+    0
+  );
 
   if (isLoading) {
     return (
@@ -125,7 +122,9 @@ const SalesPage: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Vendas</h1>
-          <p className="text-gray-600">Gerencie suas vendas e acompanhe o desempenho</p>
+          <p className="text-gray-600">
+            Gerencie suas vendas e acompanhe o desempenho
+          </p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
@@ -142,7 +141,6 @@ const SalesPage: React.FC = () => {
         </div>
       )}
 
-      {/* Estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white overflow-hidden shadow rounded-lg">
           <div className="p-5">
@@ -205,13 +203,12 @@ const SalesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Lista de Vendas */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
         <div className="px-4 py-5 sm:p-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
             Histórico de Vendas
           </h3>
-          
+
           {sales.length === 0 ? (
             <div className="text-center py-12">
               <ShoppingCart className="mx-auto h-12 w-12 text-gray-400" />
@@ -257,7 +254,10 @@ const SalesPage: React.FC = () => {
                         R$ {sale.precoNoMomentoDaVenda.toFixed(2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                        R$ {(sale.precoNoMomentoDaVenda * sale.quantidadeVendida).toFixed(2)}
+                        R${" "}
+                        {(
+                          sale.precoNoMomentoDaVenda * sale.quantidadeVendida
+                        ).toFixed(2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {formatDate(sale.dataDaVenda)}
@@ -271,7 +271,6 @@ const SalesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal de Nova Venda */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
@@ -279,7 +278,7 @@ const SalesPage: React.FC = () => {
               <h3 className="text-lg font-medium text-gray-900 mb-4">
                 Nova Venda
               </h3>
-              
+
               {error && (
                 <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
                   {error}
@@ -292,18 +291,21 @@ const SalesPage: React.FC = () => {
                     Produto
                   </label>
                   <select
-                    {...register('productId')}
+                    {...register("productId")}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
                   >
                     <option value="">Selecione um produto</option>
                     {products.map((product) => (
                       <option key={product.id} value={product.id}>
-                        {product.nome} - R$ {product.preco.toFixed(2)} (Estoque: {product.quantidade})
+                        {product.nome} - R$ {product.preco.toFixed(2)} (Estoque:{" "}
+                        {product.quantidade})
                       </option>
                     ))}
                   </select>
                   {errors.productId && (
-                    <p className="mt-1 text-sm text-red-600">{errors.productId.message}</p>
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.productId.message}
+                    </p>
                   )}
                 </div>
 
@@ -315,12 +317,14 @@ const SalesPage: React.FC = () => {
                     type="number"
                     min="1"
                     max={selectedProduct?.quantidade || 1}
-                    {...register('quantidade', { valueAsNumber: true })}
+                    {...register("quantidade", { valueAsNumber: true })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
                     placeholder="1"
                   />
                   {errors.quantidade && (
-                    <p className="mt-1 text-sm text-red-600">{errors.quantidade.message}</p>
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.quantidade.message}
+                    </p>
                   )}
                   {selectedProduct && (
                     <p className="mt-1 text-sm text-gray-500">
@@ -329,10 +333,11 @@ const SalesPage: React.FC = () => {
                   )}
                 </div>
 
-                {/* Resumo da Venda */}
                 {selectedProduct && selectedQuantity && (
                   <div className="bg-gray-50 p-4 rounded-md">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Resumo da Venda</h4>
+                    <h4 className="text-sm font-medium text-gray-900 mb-2">
+                      Resumo da Venda
+                    </h4>
                     <div className="space-y-1 text-sm text-gray-600">
                       <div className="flex justify-between">
                         <span>Produto:</span>
@@ -348,7 +353,12 @@ const SalesPage: React.FC = () => {
                       </div>
                       <div className="flex justify-between font-medium text-gray-900 pt-2 border-t">
                         <span>Total:</span>
-                        <span>R$ {(selectedProduct.preco * selectedQuantity).toFixed(2)}</span>
+                        <span>
+                          R${" "}
+                          {(selectedProduct.preco * selectedQuantity).toFixed(
+                            2
+                          )}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -364,10 +374,12 @@ const SalesPage: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={isSubmitting || !selectedProduct || !selectedQuantity}
+                    disabled={
+                      isSubmitting || !selectedProduct || !selectedQuantity
+                    }
                     className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
                   >
-                    {isSubmitting ? 'Processando...' : 'Confirmar Venda'}
+                    {isSubmitting ? "Processando..." : "Confirmar Venda"}
                   </button>
                 </div>
               </form>

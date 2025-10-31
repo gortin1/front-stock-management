@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { apiService } from '@/services/api';
-import { ProductResponse, ProductRequest } from '@/types/api';
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { apiService } from "@/services/api";
+import { ProductResponse, ProductRequest } from "@/types/api";
 import {
   Package,
   Plus,
@@ -15,12 +15,15 @@ import {
   EyeOff,
   Search,
   Filter,
-} from 'lucide-react';
+} from "lucide-react";
 
 const productSchema = z.object({
-  nome: z.string().min(1, 'Nome é obrigatório'),
-  preco: z.number().min(0.01, 'Preço deve ser maior que zero'),
-  quantidade: z.number().int().min(0, 'Quantidade deve ser um número inteiro positivo'),
+  nome: z.string().min(1, "Nome é obrigatório"),
+  preco: z.number().min(0.01, "Preço deve ser maior que zero"),
+  quantidade: z
+    .number()
+    .int()
+    .min(0, "Quantidade deve ser um número inteiro positivo"),
   imagem: z.string().optional(),
 });
 
@@ -30,10 +33,14 @@ const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<ProductResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<ProductResponse | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
-  const [error, setError] = useState('');
+  const [editingProduct, setEditingProduct] = useState<ProductResponse | null>(
+    null
+  );
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "inactive"
+  >("all");
+  const [error, setError] = useState("");
 
   const {
     register,
@@ -55,8 +62,8 @@ const ProductsPage: React.FC = () => {
       const data = await apiService.getAllProducts();
       setProducts(data);
     } catch (error) {
-      console.error('Erro ao carregar produtos:', error);
-      setError('Erro ao carregar produtos');
+      console.error("Erro ao carregar produtos:", error);
+      setError("Erro ao carregar produtos");
     } finally {
       setIsLoading(false);
     }
@@ -64,12 +71,12 @@ const ProductsPage: React.FC = () => {
 
   const onSubmit = async (data: ProductFormData) => {
     try {
-      setError('');
+      setError("");
       const productData: ProductRequest = {
         nome: data.nome,
         preco: data.preco,
         quantidade: data.quantidade,
-        imagem: data.imagem || '',
+        imagem: data.imagem || "",
       };
 
       if (editingProduct) {
@@ -81,27 +88,27 @@ const ProductsPage: React.FC = () => {
       await loadProducts();
       handleCloseModal();
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Erro ao salvar produto');
+      setError(error.response?.data?.message || "Erro ao salvar produto");
     }
   };
 
   const handleEdit = (product: ProductResponse) => {
     setEditingProduct(product);
-    setValue('nome', product.nome);
-    setValue('preco', product.preco);
-    setValue('quantidade', product.quantidade);
-    setValue('imagem', product.imagem || '');
+    setValue("nome", product.nome);
+    setValue("preco", product.preco);
+    setValue("quantidade", product.quantidade);
+    setValue("imagem", product.imagem || "");
     setIsModalOpen(true);
   };
 
   const handleInactivate = async (productId: string) => {
-    if (window.confirm('Tem certeza que deseja inativar este produto?')) {
+    if (window.confirm("Tem certeza que deseja inativar este produto?")) {
       try {
         await apiService.inactivateProduct(productId);
         await loadProducts();
       } catch (error) {
-        console.error('Erro ao inativar produto:', error);
-        setError('Erro ao inativar produto');
+        console.error("Erro ao inativar produto:", error);
+        setError("Erro ao inativar produto");
       }
     }
   };
@@ -110,15 +117,17 @@ const ProductsPage: React.FC = () => {
     setIsModalOpen(false);
     setEditingProduct(null);
     reset();
-    setError('');
+    setError("");
   };
 
   const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.nome.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = product.nome
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
     const matchesStatus =
-      statusFilter === 'all' ||
-      (statusFilter === 'active' && product.status) ||
-      (statusFilter === 'inactive' && !product.status);
+      statusFilter === "all" ||
+      (statusFilter === "active" && product.status) ||
+      (statusFilter === "inactive" && !product.status);
     return matchesSearch && matchesStatus;
   });
 
@@ -170,7 +179,9 @@ const ProductsPage: React.FC = () => {
             </label>
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
+              onChange={(e) =>
+                setStatusFilter(e.target.value as "all" | "active" | "inactive")
+              }
               className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             >
               <option value="all">Todos</option>
@@ -181,20 +192,19 @@ const ProductsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Lista de Produtos */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
         {filteredProducts.length === 0 ? (
           <div className="text-center py-12">
             <Package className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">
-              {searchTerm || statusFilter !== 'all'
-                ? 'Nenhum produto encontrado'
-                : 'Nenhum produto cadastrado'}
+              {searchTerm || statusFilter !== "all"
+                ? "Nenhum produto encontrado"
+                : "Nenhum produto cadastrado"}
             </h3>
             <p className="mt-1 text-sm text-gray-500">
-              {searchTerm || statusFilter !== 'all'
-                ? 'Tente ajustar os filtros de busca'
-                : 'Comece adicionando seus primeiros produtos'}
+              {searchTerm || statusFilter !== "all"
+                ? "Tente ajustar os filtros de busca"
+                : "Comece adicionando seus primeiros produtos"}
             </p>
           </div>
         ) : (
@@ -252,10 +262,10 @@ const ProductsPage: React.FC = () => {
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                           product.quantidade <= 5
-                            ? 'bg-red-100 text-red-800'
+                            ? "bg-red-100 text-red-800"
                             : product.quantidade <= 20
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-green-100 text-green-800'
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-green-100 text-green-800"
                         }`}
                       >
                         {product.quantidade} unidades
@@ -265,11 +275,11 @@ const ProductsPage: React.FC = () => {
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                           product.status
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
                         }`}
                       >
-                        {product.status ? 'Ativo' : 'Inativo'}
+                        {product.status ? "Ativo" : "Inativo"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -306,9 +316,9 @@ const ProductsPage: React.FC = () => {
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {editingProduct ? 'Editar Produto' : 'Novo Produto'}
+                {editingProduct ? "Editar Produto" : "Novo Produto"}
               </h3>
-              
+
               {error && (
                 <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
                   {error}
@@ -322,12 +332,14 @@ const ProductsPage: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    {...register('nome')}
+                    {...register("nome")}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Digite o nome do produto"
                   />
                   {errors.nome && (
-                    <p className="mt-1 text-sm text-red-600">{errors.nome.message}</p>
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.nome.message}
+                    </p>
                   )}
                 </div>
 
@@ -338,12 +350,14 @@ const ProductsPage: React.FC = () => {
                   <input
                     type="number"
                     step="0.01"
-                    {...register('preco', { valueAsNumber: true })}
+                    {...register("preco", { valueAsNumber: true })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="0.00"
                   />
                   {errors.preco && (
-                    <p className="mt-1 text-sm text-red-600">{errors.preco.message}</p>
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.preco.message}
+                    </p>
                   )}
                 </div>
 
@@ -353,12 +367,14 @@ const ProductsPage: React.FC = () => {
                   </label>
                   <input
                     type="number"
-                    {...register('quantidade', { valueAsNumber: true })}
+                    {...register("quantidade", { valueAsNumber: true })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="0"
                   />
                   {errors.quantidade && (
-                    <p className="mt-1 text-sm text-red-600">{errors.quantidade.message}</p>
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.quantidade.message}
+                    </p>
                   )}
                 </div>
 
@@ -368,12 +384,14 @@ const ProductsPage: React.FC = () => {
                   </label>
                   <input
                     type="url"
-                    {...register('imagem')}
+                    {...register("imagem")}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="https://exemplo.com/imagem.jpg"
                   />
                   {errors.imagem && (
-                    <p className="mt-1 text-sm text-red-600">{errors.imagem.message}</p>
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.imagem.message}
+                    </p>
                   )}
                 </div>
 
@@ -390,7 +408,11 @@ const ProductsPage: React.FC = () => {
                     disabled={isSubmitting}
                     className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                   >
-                    {isSubmitting ? 'Salvando...' : editingProduct ? 'Atualizar' : 'Criar'}
+                    {isSubmitting
+                      ? "Salvando..."
+                      : editingProduct
+                      ? "Atualizar"
+                      : "Criar"}
                   </button>
                 </div>
               </form>

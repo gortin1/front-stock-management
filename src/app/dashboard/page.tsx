@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { apiService } from '@/services/api';
-import { ProductResponse, SaleResponse } from '@/types/api';
+import React, { useState, useEffect } from "react";
+import { apiService } from "@/services/api";
+import { ProductResponse, SaleResponse } from "@/types/api";
 import {
   Package,
   ShoppingCart,
   TrendingUp,
   DollarSign,
   AlertTriangle,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface DashboardStats {
   totalProducts: number;
@@ -38,14 +38,13 @@ const DashboardPage: React.FC = () => {
       const productsData = await apiService.getAllProducts();
       setProducts(productsData);
 
-      // Calcular estatísticas
       const totalProducts = productsData.length;
-      const lowStockProducts = productsData.filter(p => p.quantidade <= 5).length;
-      
-      // Para vendas e receita, seria necessário um endpoint específico
-      // Por enquanto, vamos simular alguns dados
-      const totalSales = 0; // Seria obtido de um endpoint de vendas
-      const totalRevenue = 0; // Seria calculado com base nas vendas
+      const lowStockProducts = productsData.filter(
+        (p) => p.quantidade <= 5
+      ).length;
+
+      const totalSales = 0;
+      const totalRevenue = 0;
 
       setStats({
         totalProducts,
@@ -54,13 +53,13 @@ const DashboardPage: React.FC = () => {
         totalRevenue,
       });
     } catch (error) {
-      console.error('Erro ao carregar dados do dashboard:', error);
+      console.error("Erro ao carregar dados do dashboard:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const lowStockProducts = products.filter(p => p.quantidade <= 5);
+  const lowStockProducts = products.filter((p) => p.quantidade <= 5);
 
   if (isLoading) {
     return (
@@ -77,7 +76,6 @@ const DashboardPage: React.FC = () => {
         <p className="text-gray-600">Visão geral do seu estoque e vendas</p>
       </div>
 
-      {/* Cards de Estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white overflow-hidden shadow rounded-lg">
           <div className="p-5">
@@ -160,7 +158,6 @@ const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Produtos com Estoque Baixo */}
       {lowStockProducts.length > 0 && (
         <div className="bg-white shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
@@ -196,7 +193,6 @@ const DashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* Resumo de Produtos */}
       <div className="bg-white shadow rounded-lg">
         <div className="px-4 py-5 sm:p-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
@@ -256,11 +252,11 @@ const DashboardPage: React.FC = () => {
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             product.status
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
                           }`}
                         >
-                          {product.status ? 'Ativo' : 'Inativo'}
+                          {product.status ? "Ativo" : "Inativo"}
                         </span>
                       </td>
                     </tr>
