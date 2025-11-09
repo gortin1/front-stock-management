@@ -24,10 +24,11 @@ const productSchema = z.object({
     .number()
     .int()
     .min(0, "Quantidade deve ser um número inteiro positivo"),
-  imagem: z.string().optional(),
+  imagem: z.any().optional(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:8080"
 
 const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<ProductResponse[]>([]);
@@ -72,17 +73,19 @@ const ProductsPage: React.FC = () => {
   const onSubmit = async (data: ProductFormData) => {
     try {
       setError("");
-      const productData: ProductRequest = {
-        nome: data.nome,
-        preco: data.preco,
-        quantidade: data.quantidade,
-        imagem: data.imagem || "",
-      };
+      const formData = new FormData();
+      formData.append("nome", data.nome);
+      formData.append("preco", String(data.preco));
+      formData.append("quantidade", String(data.quantidade));
 
+      if (data.imagem && data.imagem.length > 0) {
+        formData.append("imagem", data.imagem[0]);
+      }
+      
       if (editingProduct) {
-        await apiService.updateProduct(editingProduct.id, productData);
+        await apiService.updateProduct(editingProduct.id, formData);
       } else {
-        await apiService.createProduct(productData);
+        await apiService.createProduct(formData);
       }
 
       await loadProducts();
@@ -97,11 +100,10 @@ const ProductsPage: React.FC = () => {
     setValue("nome", product.nome);
     setValue("preco", product.preco);
     setValue("quantidade", product.quantidade);
-    setValue("imagem", product.imagem || "");
     setIsModalOpen(true);
   };
 
-  const handleInactivate = async (productId: string) => {
+  const handleInactivate = async (productId: number) => {
     if (window.confirm("Tem certeza que deseja inativar este produto?")) {
       try {
         await apiService.inactivateProduct(productId);
@@ -237,7 +239,7 @@ const ProductsPage: React.FC = () => {
                         {product.imagem ? (
                           <img
                             className="h-10 w-10 rounded-lg object-cover mr-4"
-                            src={product.imagem}
+                            src={`${BACKEND_BASE_URL}/uploads/${product.imagem}`}
                             alt={product.nome}
                           />
                         ) : (
@@ -380,13 +382,12 @@ const ProductsPage: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    URL da Imagem (opcional)
+                    Imagem do produto (opcional)
                   </label>
                   <input
-                    type="url"
+                    type="file"
                     {...register("imagem")}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="https://exemplo.com/imagem.jpg"
                   />
                   {errors.imagem && (
                     <p className="mt-1 text-sm text-red-600">

@@ -78,10 +78,15 @@ class ApiService {
   }
 
   // Product endpoints
-  async createProduct(product: ProductRequest): Promise<ProductResponse> {
+  async createProduct(formData: FormData): Promise<ProductResponse> {
     const response: AxiosResponse<ProductResponse> = await this.api.post(
       "/products",
-      product
+      formData,
+      {
+        headers: {
+          "Content-Type": undefined,
+        },
+      }
     );
     return response.data;
   }
@@ -102,11 +107,16 @@ class ApiService {
 
   async updateProduct(
     id: number,
-    product: ProductRequest
+    formData: FormData
   ): Promise<ProductResponse> {
     const response: AxiosResponse<ProductResponse> = await this.api.put(
       `/products/${id}`,
-      product
+      formData,
+      {
+        headers: {
+          "Content-Type": undefined,
+        },
+      }
     );
     return response.data;
   }

@@ -58,7 +58,7 @@ const LoginPage: React.FC = () => {
               href="/register"
               className="font-medium text-blue-600 hover:text-blue-500"
             >
-              cadastre-se aqui
+              Cadastre-se aqui.
             </Link>
           </p>
         </div>

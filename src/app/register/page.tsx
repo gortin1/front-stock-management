@@ -93,7 +93,7 @@ const RegisterPage: React.FC = () => {
       setRegisterError("");
 
       const { confirmSenha, ...sellerData } = data;
-      // Remove formatação do CNPJ e celular antes de enviar para a API
+
       const cleanedData = {
         ...sellerData,
         cnpj: cleanCnpj(sellerData.cnpj),
@@ -150,7 +150,7 @@ const RegisterPage: React.FC = () => {
               href="/login"
               className="font-medium text-blue-600 hover:text-blue-500"
             >
-              faça login aqui
+              Faça login aqui.
             </Link>
           </p>
         </div>
