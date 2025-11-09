@@ -53,17 +53,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
 
-      // 1. Chame a API (que agora retorna { token, user })
       const response = await apiService.login(credentials);
 
-      // 2. Desestruture AMBOS os valores
       const { token: newToken, user: realUserFromApi } = response;
 
-      // 3. Use o usuário REAL da API, não um 'hardcoded'
       setUser(realUserFromApi);
       setToken(newToken);
 
-      // 4. Salve o usuário REAL no localStorage
       localStorage.setItem("user", JSON.stringify(realUserFromApi));
       localStorage.setItem("token", newToken);
     } catch (error) {
