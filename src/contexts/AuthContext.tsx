@@ -1,8 +1,14 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { apiService } from '@/services/api';
-import { LoginRequest, SellerResponse } from '@/types/api';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { apiService } from "@/services/api";
+import { LoginRequest, SellerResponse } from "@/types/api";
 
 interface AuthContextType {
   user: SellerResponse | null;
@@ -18,7 +24,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -33,12 +39,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar se há token salvo no localStorage
-    const savedToken = localStorage.getItem('token');
-    if (savedToken) {
+    const savedToken = localStorage.getItem("token");
+    const savedUser = localStorage.getItem("user");
+
+    if (savedToken && savedUser) {
       setToken(savedToken);
-      // Aqui você poderia fazer uma chamada para validar o token
-      // e obter os dados do usuário
+      setUser(JSON.parse(savedUser));
     }
     setIsLoading(false);
   }, []);
@@ -46,23 +52,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (credentials: LoginRequest) => {
     try {
       setIsLoading(true);
+
+      // 1. Chame a API (que agora retorna { token, user })
       const response = await apiService.login(credentials);
-      const { token: newToken } = response;
-      
+
+      // 2. Desestruture AMBOS os valores
+      const { token: newToken, user: realUserFromApi } = response;
+
+      // 3. Use o usuário REAL da API, não um 'hardcoded'
+      setUser(realUserFromApi);
       setToken(newToken);
-      localStorage.setItem('token', newToken);
-      
-      // Aqui você poderia decodificar o JWT para obter dados do usuário
-      // ou fazer uma chamada adicional para obter os dados do usuário
-      // Por enquanto, vamos simular com dados básicos
-      setUser({
-        id: 1,
-        nome: 'Usuário',
-        email: credentials.email,
-        status: true
-      });
+
+      // 4. Salve o usuário REAL no localStorage
+      localStorage.setItem("user", JSON.stringify(realUserFromApi));
+      localStorage.setItem("token", newToken);
     } catch (error) {
-      console.error('Erro no login:', error);
+      console.error("Erro no login:", error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -72,7 +77,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('token');
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   const isAuthenticated = !!token;
@@ -86,9 +93,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  if (isLoading) {
+    return null;
+  }
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

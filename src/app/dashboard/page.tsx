@@ -27,6 +27,7 @@ const DashboardPage: React.FC = () => {
   });
   const [products, setProducts] = useState<ProductResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [sales, setSales] = useState<SaleResponse[]>([]);
 
   useEffect(() => {
     loadDashboardData();
@@ -35,16 +36,26 @@ const DashboardPage: React.FC = () => {
   const loadDashboardData = async () => {
     try {
       setIsLoading(true);
-      const productsData = await apiService.getAllProducts();
+
+      const [productsData, salesData] = await Promise.all([
+        apiService.getAllProducts(),
+        apiService.getAllSales(),
+      ]);
+
       setProducts(productsData);
+      setSales(salesData);
 
       const totalProducts = productsData.length;
       const lowStockProducts = productsData.filter(
         (p) => p.quantidade <= 5
       ).length;
 
-      const totalSales = 0;
-      const totalRevenue = 0;
+      const totalSales = salesData.length;
+      const totalRevenue = salesData.reduce(
+        (sum, sale) =>
+          sum + sale.precoNoMomentoDaVenda * sale.quantidadeVendida,
+        0
+      );
 
       setStats({
         totalProducts,

@@ -69,11 +69,9 @@ const SalesPage: React.FC = () => {
         quantidade: data.quantidade,
       };
 
-      const newSale = await apiService.createSale(saleData);
+      await apiService.createSale(saleData);
 
       await loadData();
-
-      setSales((prev) => [newSale, ...prev]);
 
       setSuccess("Venda realizada com sucesso!");
       handleCloseModal();
@@ -81,7 +79,6 @@ const SalesPage: React.FC = () => {
       setError(error.response?.data?.message || "Erro ao realizar venda");
     }
   };
-
   const handleCloseModal = () => {
     setIsModalOpen(false);
     reset();
