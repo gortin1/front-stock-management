@@ -5,7 +5,6 @@ import {
   SellerRequest,
   SellerResponse,
   SellerActivateRequest,
-  ProductRequest,
   ProductResponse,
   SaleRequest,
   SaleResponse,
@@ -41,8 +40,12 @@ class ApiService {
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
-          localStorage.removeItem("token");
-          window.location.href = "/login";
+          const currentPath = window.location.pathname;
+          const publicPaths = ['/login', '/register', '/activate'];
+          if (!publicPaths.includes(currentPath)) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+          }
         }
         return Promise.reject(error);
       }

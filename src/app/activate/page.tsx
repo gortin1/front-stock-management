@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { apiService } from '@/services/api';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Package, CheckCircle } from 'lucide-react';
+import { Package, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
 
 const activateSchema = z.object({
   celular: z.string().min(10, 'Celular deve ter no mínimo 10 dígitos'),
@@ -91,6 +91,8 @@ const ActivatePage: React.FC = () => {
               <input
                 {...register('celular')}
                 type="text"
+                inputMode='tel'
+                autoComplete='tel'
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="Digite seu celular"
               />
@@ -116,8 +118,9 @@ const ActivatePage: React.FC = () => {
           </div>
 
           {activateError && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
-              {activateError}
+            <div className="flex items-center space-x-3 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              <><span>{activateError}</span></>
             </div>
           )}
 

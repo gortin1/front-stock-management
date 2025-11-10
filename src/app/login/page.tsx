@@ -53,12 +53,12 @@ const LoginPage: React.FC = () => {
             Faça login em sua conta
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Ou{' '}
+            Ainda não tem uma?{' '}
             <Link
               href="/register"
               className="font-medium text-blue-600 hover:text-blue-500"
             >
-              Cadastre-se aqui.
+              Cadastre-se.
             </Link>
           </p>
         </div>

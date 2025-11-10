@@ -8,6 +8,7 @@ export interface LoginRequest {
 
 export interface TokenResponse {
   token: string;
+  user: SellerResponse;
 }
 
 // Seller Types

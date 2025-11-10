@@ -42,9 +42,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const savedToken = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
 
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(JSON.parse(savedUser));
+    if (savedToken && savedUser && savedUser !== "undefined") {
+      try {
+        setToken(savedToken);
+        setUser(JSON.parse(savedUser));
+      } catch (error) {
+        console.error("Falha ao carregar usuário do localStorage: ", error);
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+      }
     }
     setIsLoading(false);
   }, []);
@@ -55,6 +61,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       const response = await apiService.login(credentials);
 
+      console.log("Resposta da API de login:", response);
+
       const { token: newToken, user: realUserFromApi } = response;
 
       setUser(realUserFromApi);
@@ -62,8 +70,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       localStorage.setItem("user", JSON.stringify(realUserFromApi));
       localStorage.setItem("token", newToken);
-    } catch (error) {
-      console.error("Erro no login:", error);
+    } catch (error: any) {
+      console.error("Erro no login:", error.response);
+      console.error("Erro:", error);
       throw error;
     } finally {
       setIsLoading(false);
