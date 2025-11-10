@@ -41,7 +41,7 @@ class ApiService {
       (error) => {
         if (error.response?.status === 401) {
           const currentPath = window.location.pathname;
-          const publicPaths = ['/login', '/register', '/activate'];
+          const publicPaths = ["/login", "/register", "/activate"];
           if (!publicPaths.includes(currentPath)) {
             localStorage.removeItem("token");
             window.location.href = "/login";
@@ -126,6 +126,9 @@ class ApiService {
 
   async inactivateProduct(id: number): Promise<void> {
     await this.api.patch(`/products/${id}/inactivate`);
+  }
+  async activateProduct(id: number): Promise<void> {
+    await this.api.patch(`/products/${id}/activate`);
   }
 
   // Sale endpoints

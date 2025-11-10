@@ -3,13 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { apiService } from "@/services/api";
 import { ProductResponse, SaleResponse } from "@/types/api";
-import {
-  Package,
-  ShoppingCart,
-  TrendingUp,
-  DollarSign,
-  AlertTriangle,
-} from "lucide-react";
+import { Package, ShoppingCart, DollarSign, AlertTriangle } from "lucide-react";
 
 interface DashboardStats {
   totalProducts: number;
@@ -262,12 +256,18 @@ const DashboardPage: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            product.status
+                            product.statusProduto === "ATIVO"
                               ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
+                              : product.statusProduto === "INATIVO"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-yellow-100 text-yellow-800"
                           }`}
                         >
-                          {product.status ? "Ativo" : "Inativo"}
+                          {product.statusProduto === "ATIVO"
+                            ? "Ativo"
+                            : product.statusProduto === "INATIVO"
+                            ? "Inativo"
+                            : "Em Falta"}
                         </span>
                       </td>
                     </tr>

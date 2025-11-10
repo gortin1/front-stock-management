@@ -61,8 +61,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       const response = await apiService.login(credentials);
 
-      console.log("Resposta da API de login:", response);
-
       const { token: newToken, user: realUserFromApi } = response;
 
       setUser(realUserFromApi);

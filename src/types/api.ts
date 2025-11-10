@@ -40,12 +40,14 @@ export interface ProductRequest {
   imagem?: string;
 }
 
+export type StatusProduct = "ATIVO" | "INATIVO" | "EM_FALTA";
+
 export interface ProductResponse {
   id: number;
   nome: string;
   preco: number;
   quantidade: number;
-  status: boolean;
+  statusProduto: StatusProduct;
   imagem?: string;
   sellerId: number;
 }

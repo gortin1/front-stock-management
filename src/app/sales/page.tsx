@@ -50,7 +50,7 @@ const SalesPage: React.FC = () => {
         apiService.getAllProducts(),
         apiService.getAllSales(),
       ]);
-      setProducts(productsData.filter((p) => p.status));
+      setProducts(productsData.filter((p) => p.statusProduto === "ATIVO"));
       setSales(salesData);
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
@@ -289,7 +289,7 @@ const SalesPage: React.FC = () => {
                   </label>
                   <select
                     {...register("productId")}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none text-black focus:ring-green-500 focus:border-green-500"
                   >
                     <option value="">Selecione um produto</option>
                     {products.map((product) => (
@@ -315,7 +315,7 @@ const SalesPage: React.FC = () => {
                     min="1"
                     max={selectedProduct?.quantidade || 1}
                     {...register("quantidade", { valueAsNumber: true })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black focus:outline-none focus:ring-green-500 focus:border-green-500"
                     placeholder="1"
                   />
                   {errors.quantidade && (

@@ -5,17 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiService } from "@/services/api";
-import { ProductResponse, ProductRequest } from "@/types/api";
-import {
-  Package,
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  EyeOff,
-  Search,
-  Filter,
-} from "lucide-react";
+import { ProductResponse } from "@/types/api";
+import { Package, Plus, Edit, Eye, EyeOff, Search } from "lucide-react";
 
 const productSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
@@ -40,9 +31,10 @@ const ProductsPage: React.FC = () => {
     null
   );
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<
-    "all" | "active" | "inactive"
-  >("all");
+
+  // ----- MUDANÇA 1: Estado do Filtro -----
+  // Mudado para string genérica para aceitar os valores do Enum
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [error, setError] = useState("");
 
   const {
@@ -117,6 +109,18 @@ const ProductsPage: React.FC = () => {
     }
   };
 
+  const handleActivate = async (productId: number) => {
+    if (window.confirm("Tem certeza que deseja reativar este produto?")) {
+      try {
+        await apiService.activateProduct(productId);
+        await loadProducts();
+      } catch (error) {
+        console.error("Erro ao ativar produto:", error);
+        setError("Erro ao ativar produto");
+      }
+    }
+  };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingProduct(null);
@@ -128,12 +132,37 @@ const ProductsPage: React.FC = () => {
     const matchesSearch = product.nome
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
+
     const matchesStatus =
-      statusFilter === "all" ||
-      (statusFilter === "active" && product.status) ||
-      (statusFilter === "inactive" && !product.status);
+      statusFilter === "all" || product.statusProduto === statusFilter;
+
     return matchesSearch && matchesStatus;
   });
+
+  const getStatusClass = (status: string) => {
+    switch (status) {
+      case "ATIVO":
+        return "bg-green-100 text-green-800";
+      case "INATIVO":
+        return "bg-red-100 text-red-800";
+      case "EM_FALTA":
+        return "bg-yellow-100 text-yellow-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+  const formatStatusText = (status: string) => {
+    switch (status) {
+      case "ATIVO":
+        return "Ativo";
+      case "INATIVO":
+        return "Inativo";
+      case "EM_FALTA":
+        return "Em Falta";
+      default:
+        return status;
+    }
+  };
 
   if (isLoading) {
     return (
@@ -145,6 +174,7 @@ const ProductsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* ... (Cabeçalho da página, botão "Novo Produto") ... */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Produtos</h1>
@@ -162,6 +192,7 @@ const ProductsPage: React.FC = () => {
       {/* Filtros */}
       <div className="bg-white shadow rounded-lg p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* ... (Input de Busca) ... */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Buscar produtos
@@ -183,19 +214,19 @@ const ProductsPage: React.FC = () => {
             </label>
             <select
               value={statusFilter}
-              onChange={(e) =>
-                setStatusFilter(e.target.value as "all" | "active" | "inactive")
-              }
+              onChange={(e) => setStatusFilter(e.target.value)}
               className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             >
               <option value="all">Todos</option>
-              <option value="active">Ativos</option>
-              <option value="inactive">Inativos</option>
+              <option value="ATIVO">Ativos</option>
+              <option value="INATIVO">Inativos</option>
+              <option value="EM_FALTA">Em Falta</option>
             </select>
           </div>
         </div>
       </div>
 
+      {/* Tabela de Produtos */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
         {filteredProducts.length === 0 ? (
           <div className="text-center py-12">
@@ -215,6 +246,7 @@ const ProductsPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
+                {/* ... (Cabeçalhos da Tabela) ... */}
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Produto
@@ -236,6 +268,7 @@ const ProductsPage: React.FC = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredProducts.map((product) => (
                   <tr key={product.id} className="hover:bg-gray-50">
+                    {/* ... (Coluna Produto com imagem) ... */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         {product.imagem ? (
@@ -259,13 +292,15 @@ const ProductsPage: React.FC = () => {
                         </div>
                       </div>
                     </td>
+                    {/* ... (Coluna Preço) ... */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       R$ {product.preco.toFixed(2)}
                     </td>
+                    {/* ... (Coluna Estoque) ... */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          product.quantidade <= 5
+                          product.statusProduto === "EM_FALTA"
                             ? "bg-red-100 text-red-800"
                             : product.quantidade <= 20
                             ? "bg-yellow-100 text-yellow-800"
@@ -277,13 +312,11 @@ const ProductsPage: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          product.status
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusClass(
+                          product.statusProduto
+                        )}`}
                       >
-                        {product.status ? "Ativo" : "Inativo"}
+                        {formatStatusText(product.statusProduto)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -295,13 +328,22 @@ const ProductsPage: React.FC = () => {
                         >
                           <Edit className="h-5 w-5" />
                         </button>
-                        {product.status && (
+                        {product.statusProduto === "ATIVO" && (
                           <button
                             onClick={() => handleInactivate(product.id)}
                             className="text-red-600 hover:text-red-900"
                             title="Inativar"
                           >
                             <EyeOff className="h-5 w-5" />
+                          </button>
+                        )}
+                        {product.statusProduto === "INATIVO" && (
+                          <button
+                            onClick={() => handleActivate(product.id)}
+                            className="text-green-600 hover:text-green-900"
+                            title="Ativar"
+                          >
+                            <Eye className="h-5 w-5" />
                           </button>
                         )}
                       </div>
@@ -331,13 +373,13 @@ const ProductsPage: React.FC = () => {
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-black mb-1">
                     Nome do Produto
                   </label>
                   <input
                     type="text"
                     {...register("nome")}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none text-black focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Digite o nome do produto"
                   />
                   {errors.nome && (
@@ -348,14 +390,14 @@ const ProductsPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-black mb-1">
                     Preço
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     {...register("preco", { valueAsNumber: true })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="0.00"
                   />
                   {errors.preco && (
@@ -366,13 +408,13 @@ const ProductsPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-black mb-1">
                     Quantidade
                   </label>
                   <input
                     type="number"
                     {...register("quantidade", { valueAsNumber: true })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-black shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="0"
                   />
                   {errors.quantidade && (
@@ -383,13 +425,13 @@ const ProductsPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-black mb-1">
                     Imagem do produto (opcional)
                   </label>
                   <input
                     type="file"
                     {...register("imagem")}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-black shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   />
                   {errors.imagem && (
                     <p className="mt-1 text-sm text-red-600">
