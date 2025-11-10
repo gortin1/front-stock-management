@@ -28,7 +28,9 @@ const productSchema = z.object({
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
-const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:8080"
+const BACKEND_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ||
+  "http://localhost:8080";
 
 const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<ProductResponse[]>([]);
@@ -81,7 +83,7 @@ const ProductsPage: React.FC = () => {
       if (data.imagem && data.imagem.length > 0) {
         formData.append("imagem", data.imagem[0]);
       }
-      
+
       if (editingProduct) {
         await apiService.updateProduct(editingProduct.id, formData);
       } else {

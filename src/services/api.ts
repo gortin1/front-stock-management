@@ -109,7 +109,7 @@ class ApiService {
     id: number,
     formData: FormData
   ): Promise<ProductResponse> {
-    const response: AxiosResponse<ProductResponse> = await this.api.put(
+    const response: AxiosResponse<ProductResponse> = await this.api.post(
       `/products/${id}`,
       formData,
       {
