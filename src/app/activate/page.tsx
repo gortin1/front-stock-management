@@ -7,14 +7,6 @@ import { z } from "zod";
 import { apiService } from "@/services/api";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Package, CheckCircle } from "lucide-react";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { apiService } from "@/services/api";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Package, CheckCircle, AlertCircle, AlertTriangle } from "lucide-react";
 
 const activateSchema = z.object({
