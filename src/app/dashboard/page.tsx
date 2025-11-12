@@ -245,7 +245,17 @@ const DashboardPage: React.FC = () => {
                   {products.slice(0, 5).map((product) => (
                     <tr key={product.id}>
                       <td className="px-6 py-4 whitespace-nowrap flex items-center">
-                        {product.imagem}
+                        {product.imagem ? (
+                          <img
+                            className="h-10 w-10 rounded-lg object-cover mr-4"
+                            src={product.imagem}
+                            alt={product.nome}
+                          />
+                        ) : (
+                          <div className="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center mr-4">
+                            <Package className="h-6 w-6 text-gray-400" />
+                          </div>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {product.nome}
