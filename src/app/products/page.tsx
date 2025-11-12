@@ -79,7 +79,11 @@ const ProductsPage: React.FC = () => {
       formData.append("preco", String(data.preco));
       formData.append("quantidade", String(data.quantidade));
 
-      if (data.imagem && data.imagem.length > 0) {
+      if (
+        data.imagem &&
+        data.imagem instanceof FileList &&
+        data.imagem.length > 0
+      ) {
         formData.append("imagem", data.imagem[0]);
       }
 
