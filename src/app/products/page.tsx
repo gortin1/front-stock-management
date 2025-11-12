@@ -31,7 +31,7 @@ const productSchema = z.object({
 type ProductFormData = z.infer<typeof productSchema>;
 const BACKEND_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ||
-  "http://localhost:8080";
+  "https://stock-management-k0nt.onrender.com";
 
 const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<ProductResponse[]>([]);
