@@ -53,9 +53,13 @@ export interface ProductResponse {
 }
 
 // Sale Types
-export interface SaleRequest {
+export interface SaleItemRequest {
   productId: number;
   quantidade: number;
+}
+
+export interface SaleRequest {
+  items: SaleItemRequest[];
 }
 
 export interface SaleResponse {
@@ -64,7 +68,7 @@ export interface SaleResponse {
   produtoNome: string;
   quantidadeVendida: number;
   precoNoMomentoDaVenda: number;
-  dataDaVenda: string;
+  dataPedido: string;
 }
 
 // API Response wrapper
