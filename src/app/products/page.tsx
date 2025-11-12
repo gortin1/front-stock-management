@@ -281,7 +281,7 @@ const ProductsPage: React.FC = () => {
                         {product.imagem ? (
                           <img
                             className="h-10 w-10 rounded-lg object-cover mr-4"
-                            src={`${BACKEND_BASE_URL}/uploads/${product.imagem}`}
+                            src={product.imagem}
                             alt={product.nome}
                           />
                         ) : (
