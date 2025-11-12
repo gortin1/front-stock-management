@@ -15,13 +15,14 @@ class ApiService {
 
   constructor() {
     this.api = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api",
+      baseURL:
+        process.env.NEXT_PUBLIC_API_URL ||
+        "https://stock-management-k0nt.onrender.com/api",
       headers: {
         "Content-Type": "application/json",
       },
     });
 
-    // Interceptor para adicionar token de autenticação
     this.api.interceptors.request.use(
       (config) => {
         const token = localStorage.getItem("token");
@@ -35,7 +36,6 @@ class ApiService {
       }
     );
 
-    // Interceptor para tratar respostas
     this.api.interceptors.response.use(
       (response) => response,
       (error) => {
@@ -44,6 +44,7 @@ class ApiService {
           const publicPaths = ["/login", "/register", "/activate"];
           if (!publicPaths.includes(currentPath)) {
             localStorage.removeItem("token");
+            localStorage.removeItem("user");
             window.location.href = "/login";
           }
         }
