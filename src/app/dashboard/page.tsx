@@ -244,6 +244,9 @@ const DashboardPage: React.FC = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {products.slice(0, 5).map((product) => (
                     <tr key={product.id}>
+                      <td className="px-6 py-4 whitespace-nowrap flex items-center">
+                        {product.imagem}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {product.nome}
                       </td>
