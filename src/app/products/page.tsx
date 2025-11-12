@@ -6,16 +6,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiService } from "@/services/api";
 import { ProductResponse } from "@/types/api";
-import { Package, Plus, Edit, Eye, EyeOff, Search } from "lucide-react";
+import {
+  Package,
+  Plus,
+  Edit,
+  Eye,
+  EyeOff,
+  Search,
+  AlertCircle,
+} from "lucide-react";
 
 const productSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
-  preco: z.number().min(0.01, "Preço deve ser maior que zero"),
-  quantidade: z
+  preco: z.coerce.number().min(0.01, "Preço deve ser maior que zero"),
+  quantidade: z.coerce
     .number()
     .int()
-    .min(0, "Quantidade deve ser um número inteiro positivo"),
-  imagem: z.any().optional(),
+    .min(1, "Quantidade deve ser um número inteiro maior que zero"),
+  imagem: z
+    .instanceof(FileList)
+    .refine((files) => files.length > 0, "A imagem é obrigatória"),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -31,9 +41,6 @@ const ProductsPage: React.FC = () => {
     null
   );
   const [searchTerm, setSearchTerm] = useState("");
-
-  // ----- MUDANÇA 1: Estado do Filtro -----
-  // Mudado para string genérica para aceitar os valores do Enum
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [error, setError] = useState("");
 
@@ -43,7 +50,7 @@ const ProductsPage: React.FC = () => {
     formState: { errors, isSubmitting },
     reset,
     setValue,
-  } = useForm<ProductFormData>({
+  } = useForm({
     resolver: zodResolver(productSchema),
   });
 
@@ -383,9 +390,10 @@ const ProductsPage: React.FC = () => {
                     placeholder="Digite o nome do produto"
                   />
                   {errors.nome && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.nome.message}
-                    </p>
+                    <div className="flex items-center mt-1 p-2 text-sm text-red-700 bg-red-50 rounded-md">
+                      <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <span>{errors.nome.message}</span>
+                    </div>
                   )}
                 </div>
 
@@ -396,14 +404,15 @@ const ProductsPage: React.FC = () => {
                   <input
                     type="number"
                     step="0.01"
-                    {...register("preco", { valueAsNumber: true })}
+                    {...register("preco")}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="0.00"
                   />
                   {errors.preco && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.preco.message}
-                    </p>
+                    <div className="flex items-center mt-1 p-2 text-sm text-red-700 bg-red-50 rounded-md">
+                      <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <span>{errors.preco.message}</span>
+                    </div>
                   )}
                 </div>
 
@@ -413,20 +422,21 @@ const ProductsPage: React.FC = () => {
                   </label>
                   <input
                     type="number"
-                    {...register("quantidade", { valueAsNumber: true })}
+                    {...register("quantidade")}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-black shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="0"
                   />
                   {errors.quantidade && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.quantidade.message}
-                    </p>
+                    <div className="flex items-center mt-1 p-2 text-sm text-red-700 bg-red-50 rounded-md">
+                      <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <span>{errors.quantidade.message}</span>
+                    </div>
                   )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-black mb-1">
-                    Imagem do produto (opcional)
+                    Imagem do produto
                   </label>
                   <input
                     type="file"
@@ -434,9 +444,10 @@ const ProductsPage: React.FC = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-black shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   />
                   {errors.imagem && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.imagem.message}
-                    </p>
+                    <div className="flex items-center mt-1 p-2 text-sm text-red-700 bg-red-50 rounded-md">
+                      <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <span>{errors.imagem.message}</span>
+                    </div>
                   )}
                 </div>
 

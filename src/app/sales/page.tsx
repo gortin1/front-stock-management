@@ -18,6 +18,7 @@ import {
   DollarSign,
   Trash2,
   X,
+  AlertCircle,
 } from "lucide-react";
 
 interface CartItem {
@@ -31,7 +32,10 @@ interface CartItem {
 
 const saleSchema = z.object({
   productId: z.string().min(1, "Produto é obrigatório"),
-  quantidade: z.number().int().min(1, "Quantidade deve ser pelo menos 1"),
+  quantidade: z.coerce
+    .number()
+    .int()
+    .min(1, "Quantidade deve ser pelo menos 1"),
 });
 
 type SaleFormData = z.infer<typeof saleSchema>;
@@ -52,7 +56,7 @@ const SalesPage: React.FC = () => {
     formState: { errors, isSubmitting },
     reset,
     watch,
-  } = useForm<SaleFormData>({
+  } = useForm({
     resolver: zodResolver(saleSchema),
     defaultValues: {
       quantidade: 1,
@@ -403,9 +407,11 @@ const SalesPage: React.FC = () => {
                       ))}
                     </select>
                     {errors.productId && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.productId.message}
-                      </p>
+                      <div className="flex items-center mt-1 p-2 text-sm text-red-700 bg-red-50 rounded-md">
+                           {" "}
+                        <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" /> 
+                          <span>{errors.productId.message}</span> {" "}
+                      </div>
                     )}
                   </div>
                   <div>
@@ -416,14 +422,16 @@ const SalesPage: React.FC = () => {
                       type="number"
                       min="1"
                       max={selectedProduct?.quantidade || 1}
-                      {...register("quantidade", { valueAsNumber: true })}
+                      {...register("quantidade")}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-black focus:outline-none focus:ring-green-500 focus:border-green-500"
                       placeholder="1"
                     />
                     {errors.quantidade && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.quantidade.message}
-                      </p>
+                      <div className="flex items-center mt-1 p-2 text-sm text-red-700 bg-red-50 rounded-md">
+                           {" "}
+                        <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" /> 
+                          <span>{errors.quantidade.message}</span> 
+                      </div>
                     )}
                   </div>
                 </div>
