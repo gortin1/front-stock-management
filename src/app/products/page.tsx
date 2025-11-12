@@ -311,7 +311,7 @@ const ProductsPage: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          product.statusProduto === "EM_FALTA"
+                          product.quantidade === 0
                             ? "bg-red-100 text-red-800"
                             : product.quantidade <= 20
                             ? "bg-yellow-100 text-yellow-800"
